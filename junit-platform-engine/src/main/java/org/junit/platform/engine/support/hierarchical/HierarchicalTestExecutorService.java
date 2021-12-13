@@ -95,6 +95,11 @@ public interface HierarchicalTestExecutorService extends AutoCloseable {
 		ResourceLock getResourceLock();
 
 		/**
+		 * Get the {@linkplain ConditionalBlocker conditional blocker} of this task.
+		 */
+		ConditionalBlocker getBlocker();
+
+		/**
 		 * Execute this task.
 		 */
 		void execute();

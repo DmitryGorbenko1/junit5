@@ -36,6 +36,7 @@ import org.junit.platform.engine.TestDescriptor;
 import org.junit.platform.engine.TestTag;
 import org.junit.platform.engine.UniqueId;
 import org.junit.platform.engine.support.descriptor.MethodSource;
+import org.junit.platform.engine.support.hierarchical.ConditionalBlocker;
 import org.junit.platform.engine.support.hierarchical.ExclusiveResource;
 
 /**
@@ -82,6 +83,11 @@ public abstract class MethodBasedTestDescriptor extends JupiterTestDescriptor {
 	@Override
 	public Set<ExclusiveResource> getExclusiveResources() {
 		return getExclusiveResourcesFromAnnotation(getTestMethod());
+	}
+
+	@Override
+	public ConditionalBlocker getConditionalBlocker() {
+		return getConditionalBlockersFromAnnotation(getTestMethod());
 	}
 
 	@Override

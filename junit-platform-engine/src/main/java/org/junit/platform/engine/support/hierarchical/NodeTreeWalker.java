@@ -43,6 +43,8 @@ class NodeTreeWalker {
 	NodeExecutionAdvisor walk(TestDescriptor rootDescriptor) {
 		Preconditions.condition(getExclusiveResources(rootDescriptor).isEmpty(),
 			"Engine descriptor must not declare exclusive resources");
+		Preconditions.condition(getConditionalBlocker(rootDescriptor).isEmpty(),
+			"Engine descriptor must not declare conditional blockers");
 		NodeExecutionAdvisor advisor = new NodeExecutionAdvisor();
 		rootDescriptor.getChildren().forEach(child -> walk(child, child, advisor));
 		return advisor;
@@ -50,6 +52,8 @@ class NodeTreeWalker {
 
 	private void walk(TestDescriptor globalLockDescriptor, TestDescriptor testDescriptor,
 			NodeExecutionAdvisor advisor) {
+		ConditionalBlocker blocker = getConditionalBlocker(testDescriptor);
+
 		Set<ExclusiveResource> exclusiveResources = getExclusiveResources(testDescriptor);
 		if (exclusiveResources.isEmpty()) {
 			advisor.useResourceLock(testDescriptor, globalReadLock);
@@ -79,6 +83,8 @@ class NodeTreeWalker {
 			}
 			advisor.useResourceLock(testDescriptor, lockManager.getLockForResources(allResources));
 		}
+
+		advisor.useConditionalBlocker(testDescriptor, blocker);
 	}
 
 	private void forceDescendantExecutionModeRecursively(NodeExecutionAdvisor advisor, TestDescriptor testDescriptor) {
@@ -93,6 +99,10 @@ class NodeTreeWalker {
 
 	private Set<ExclusiveResource> getExclusiveResources(TestDescriptor testDescriptor) {
 		return NodeUtils.asNode(testDescriptor).getExclusiveResources();
+	}
+
+	private ConditionalBlocker getConditionalBlocker(TestDescriptor testDescriptor) {
+		return NodeUtils.asNode(testDescriptor).getConditionalBlocker();
 	}
 
 	private void doForChildrenRecursively(TestDescriptor parent, Consumer<TestDescriptor> consumer) {

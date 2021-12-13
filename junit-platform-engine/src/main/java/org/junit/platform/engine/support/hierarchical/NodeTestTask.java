@@ -75,6 +75,11 @@ class NodeTestTask<C extends EngineExecutionContext> implements TestTask {
 	}
 
 	@Override
+	public ConditionalBlocker getBlocker() {
+		return taskContext.getExecutionAdvisor().getConditionalBlocker(testDescriptor);
+	}
+
+	@Override
 	public ExecutionMode getExecutionMode() {
 		return taskContext.getExecutionAdvisor().getForcedExecutionMode(testDescriptor).orElse(node.getExecutionMode());
 	}

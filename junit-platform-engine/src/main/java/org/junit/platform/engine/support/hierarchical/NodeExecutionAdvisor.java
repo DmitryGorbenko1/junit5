@@ -24,6 +24,7 @@ class NodeExecutionAdvisor {
 
 	private final Map<TestDescriptor, ExecutionMode> forcedDescendantExecutionModeByTestDescriptor = new HashMap<>();
 	private final Map<TestDescriptor, ResourceLock> resourceLocksByTestDescriptor = new HashMap<>();
+	private final Map<TestDescriptor, ConditionalBlocker> conditionalBlockersByTestDescriptor = new HashMap<>();
 
 	void forceDescendantExecutionMode(TestDescriptor testDescriptor, ExecutionMode executionMode) {
 		forcedDescendantExecutionModeByTestDescriptor.put(testDescriptor, executionMode);
@@ -31,6 +32,10 @@ class NodeExecutionAdvisor {
 
 	void useResourceLock(TestDescriptor testDescriptor, ResourceLock resourceLock) {
 		resourceLocksByTestDescriptor.put(testDescriptor, resourceLock);
+	}
+
+	void useConditionalBlocker(TestDescriptor testDescriptor, ConditionalBlocker conditionalBlocker) {
+		conditionalBlockersByTestDescriptor.put(testDescriptor, conditionalBlocker);
 	}
 
 	Optional<ExecutionMode> getForcedExecutionMode(TestDescriptor testDescriptor) {
@@ -47,5 +52,9 @@ class NodeExecutionAdvisor {
 
 	ResourceLock getResourceLock(TestDescriptor testDescriptor) {
 		return resourceLocksByTestDescriptor.getOrDefault(testDescriptor, NopLock.INSTANCE);
+	}
+
+	ConditionalBlocker getConditionalBlocker(TestDescriptor testDescriptor) {
+		return conditionalBlockersByTestDescriptor.getOrDefault(testDescriptor, new ConditionalBlocker());
 	}
 }

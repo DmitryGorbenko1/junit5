@@ -19,6 +19,8 @@ import static org.junit.platform.commons.util.AnnotationUtils.findAnnotation;
 import static org.junit.platform.commons.util.AnnotationUtils.findRepeatableAnnotations;
 
 import java.lang.reflect.AnnotatedElement;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -28,6 +30,7 @@ import java.util.function.Supplier;
 
 import org.apiguardian.api.API;
 import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.WaitsFor;
 import org.junit.jupiter.api.extension.ConditionEvaluationResult;
 import org.junit.jupiter.api.extension.Extension;
 import org.junit.jupiter.api.parallel.Execution;
@@ -47,6 +50,7 @@ import org.junit.platform.engine.TestSource;
 import org.junit.platform.engine.TestTag;
 import org.junit.platform.engine.UniqueId;
 import org.junit.platform.engine.support.descriptor.AbstractTestDescriptor;
+import org.junit.platform.engine.support.hierarchical.ConditionalBlocker;
 import org.junit.platform.engine.support.hierarchical.ExclusiveResource;
 import org.junit.platform.engine.support.hierarchical.ExclusiveResource.LockMode;
 import org.junit.platform.engine.support.hierarchical.Node;
@@ -183,6 +187,33 @@ public abstract class JupiterTestDescriptor extends AbstractTestDescriptor
 		return findRepeatableAnnotations(element, ResourceLock.class).stream()
 				.map(resource -> new ExclusiveResource(resource.value(), toLockMode(resource.mode())))
 				.collect(toSet());
+		// @formatter:on
+	}
+
+	ConditionalBlocker getConditionalBlockersFromAnnotation(AnnotatedElement element) {
+		// @formatter:off
+		Set<Supplier<Boolean>> conditions = findRepeatableAnnotations(element, WaitsFor.class).stream()
+				.map(condition -> {
+					try {
+						Method method = condition.clazz().getDeclaredMethod(condition.method());
+
+						return (Supplier<Boolean>) () -> {
+							try {
+								return (Boolean) method.invoke(null);
+							} catch (IllegalAccessException | InvocationTargetException e) {
+								throw new RuntimeException(e);
+							}
+						};
+					} catch (NoSuchMethodException e) {
+						e.printStackTrace();
+						throw new RuntimeException(
+								String.format("%s.%s doesn't exist", condition.clazz().getName(), condition.method())
+						);
+					}
+				})
+				.collect(toSet());
+
+		return new ConditionalBlocker(conditions);
 		// @formatter:on
 	}
 

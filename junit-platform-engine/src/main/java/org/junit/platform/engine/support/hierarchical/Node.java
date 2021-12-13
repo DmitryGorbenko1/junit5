@@ -197,6 +197,22 @@ public interface Node<C extends EngineExecutionContext> {
 	}
 
 	/**
+	 * Get the {@linkplain ConditionalBlocker conditional blocker}
+	 * that is blocking execution of this node.
+	 *
+	 * <p>The default implementation returns an empty set.
+	 *
+	 * @return conditional blocker required by this node; never
+	 * {@code null} but potentially empty
+	 * @since 1.3
+	 * @see ExclusiveResource
+	 */
+	@API(status = EXPERIMENTAL, since = "5.9", consumers = "org.junit.platform.engine.support.hierarchical")
+	default ConditionalBlocker getConditionalBlocker() {
+		return new ConditionalBlocker();
+	}
+
+	/**
 	 * The result of determining whether the execution of a given {@code context}
 	 * should be <em>skipped</em>.
 	 *
