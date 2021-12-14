@@ -195,20 +195,32 @@ public abstract class JupiterTestDescriptor extends AbstractTestDescriptor
 		Set<Supplier<Boolean>> conditions = findRepeatableAnnotations(element, WaitsFor.class).stream()
 				.map(condition -> {
 					try {
-						Method method = condition.clazz().getDeclaredMethod(condition.method());
+						Method method = condition.clazz().getDeclaredMethod(condition.method(), String[].class);
 
 						return (Supplier<Boolean>) () -> {
 							try {
-								return (Boolean) method.invoke(condition.arguments());
+								return (Boolean) method.invoke(null, (Object) condition.arguments());
 							} catch (IllegalAccessException | InvocationTargetException e) {
 								throw new RuntimeException(e);
 							}
 						};
 					} catch (NoSuchMethodException e) {
-						e.printStackTrace();
-						throw new RuntimeException(
-								String.format("%s.%s doesn't exist", condition.clazz().getName(), condition.method())
-						);
+						try {
+							Method method = condition.clazz().getDeclaredMethod(condition.method());
+
+							return (Supplier<Boolean>) () -> {
+								try {
+									return (Boolean) method.invoke(null);
+								} catch (IllegalAccessException | InvocationTargetException le) {
+									throw new RuntimeException(le);
+								}
+							};
+						} catch (NoSuchMethodException le) {
+							le.printStackTrace();
+							throw new RuntimeException(
+									String.format("%s.%s doesn't exist", condition.clazz().getName(), condition.method())
+							);
+						}
 					}
 				})
 				.collect(toSet());
