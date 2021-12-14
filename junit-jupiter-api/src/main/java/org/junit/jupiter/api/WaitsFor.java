@@ -49,4 +49,9 @@ public @interface WaitsFor {
 	 * Static method that would return boolean
 	 */
 	String method();
+
+	/**
+	 * Values to pass to the conditional blocker
+	 */
+	String[] arguments() default {};
 }

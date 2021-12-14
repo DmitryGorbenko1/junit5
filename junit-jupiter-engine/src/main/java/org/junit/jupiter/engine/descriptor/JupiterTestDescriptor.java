@@ -199,7 +199,7 @@ public abstract class JupiterTestDescriptor extends AbstractTestDescriptor
 
 						return (Supplier<Boolean>) () -> {
 							try {
-								return (Boolean) method.invoke(null);
+								return (Boolean) method.invoke(condition.arguments());
 							} catch (IllegalAccessException | InvocationTargetException e) {
 								throw new RuntimeException(e);
 							}
