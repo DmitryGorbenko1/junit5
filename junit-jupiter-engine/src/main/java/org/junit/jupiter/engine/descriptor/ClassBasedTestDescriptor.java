@@ -71,6 +71,7 @@ import org.junit.platform.engine.TestDescriptor;
 import org.junit.platform.engine.TestTag;
 import org.junit.platform.engine.UniqueId;
 import org.junit.platform.engine.support.descriptor.ClassSource;
+import org.junit.platform.engine.support.hierarchical.ConditionalBlocker;
 import org.junit.platform.engine.support.hierarchical.ExclusiveResource;
 import org.junit.platform.engine.support.hierarchical.ThrowableCollector;
 
@@ -140,6 +141,11 @@ public abstract class ClassBasedTestDescriptor extends JupiterTestDescriptor {
 	@Override
 	public Set<ExclusiveResource> getExclusiveResources() {
 		return getExclusiveResourcesFromAnnotation(getTestClass());
+	}
+
+	@Override
+	public ConditionalBlocker getConditionalBlocker() {
+		return getConditionalBlockersFromAnnotation(getTestClass());
 	}
 
 	@Override
