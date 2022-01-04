@@ -59,7 +59,7 @@ dependencies {
 	"testImplementation"(testFixtures(project(":junit-jupiter-api")))
 
 	"testRuntimeOnly"(project(":junit-platform-engine"))
-	"testRuntimeOnly"(project(":junit-platform-jfr"))
+	//"testRuntimeOnly"(project(":junit-platform-jfr"))
 
 	"testRuntimeOnly"(bundleFromLibs("log4j"))
 }
